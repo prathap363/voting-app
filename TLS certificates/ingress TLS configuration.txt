@@ -1,0 +1,33 @@
+
+step 1
+Create kubernetes secrets to conigure the TLS certificate in ingress:
+kubectl create secret tls polling-tls --cert=server.crt --key=server.key -n vote
+
+
+make sure when you do port forwarding, you route it to 443. it is very important 
+kubectl port-forward -n nginx-ingress svc/local-nginx-ingress-controller-controller 8443:443
+
+
+Step 2: Import CA correctly
+
+
+Open mmc.exe
+
+File → Add/Remove Snap-in → Certificates → Computer account → Local Computer → Finish
+
+Navigate: Trusted Root Certification Authorities → Certificates
+
+Right-click → All Tasks → Import → select ca.crt
+
+Confirm it appears in the list.
+
+MUST be Local Computer, not Current User.
+
+
+
+Step 3: Restart browser / PowerShell
+
+
+Chrome / Edge caches cert trust → restart browser
+
+PowerShell / curl session must be restarted

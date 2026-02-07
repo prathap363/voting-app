@@ -1,0 +1,66 @@
+openssl genrsa -out ca.key 4096
+
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
+  -out ca.crt \
+  -subj "/CN=MyOrg Root CA/O=MyOrg/C=US" \
+  -extensions v3_ca \
+  -config <(cat <<EOF
+[req]
+distinguished_name=req
+[ v3_ca ]
+basicConstraints=critical,CA:TRUE
+keyUsage=critical,keyCertSign,cRLSign
+EOF
+)
+
+
+
+
+
+
+
+server.cnf:
+
+[req]
+default_bits       = 2048
+prompt             = no
+default_md         = sha256
+distinguished_name = dn
+req_extensions     = req_ext
+
+[dn]
+CN = vote.polling.com
+O  = MyOrg
+C  = US
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = vote.polling.com
+DNS.2 = result.polling.com
+DNS.3 = *.polling.com
+
+
+openssl genrsa -out server.key 2048
+
+
+
+openssl req -new -key server.key -out server.csr -config server.cnf
+
+
+openssl x509 -req -in server.csr \
+  -CA ca.crt -CAkey ca.key -CAcreateserial \
+  -out server.crt -days 365 \
+  -sha256 -extensions req_ext -extfile server.cnf
+
+
+verify this you should see the below DNS
+openssl x509 -in server.crt -text -noout | grep -A5 "Subject Alternative Name"
+
+
+DNS:vote.polling.com
+DNS:result.polling.com
+DNS:*.polling.com
+
+
