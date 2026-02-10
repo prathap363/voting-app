@@ -6,7 +6,7 @@ metadata:
 spec:
   parentRefs:
   - name: nginx-gateway          # Gateway name
-    namespace: nginx-gateway   # Gateway namespace
+    namespace: vote   # Gateway namespace
   hostnames:
   - vote.polling.com
   rules:
