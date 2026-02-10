@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gateway-secret-reader-binding
+  namespace: vote
+subjects:
+- kind: ServiceAccount
+  name: nginx-gateway-nginx
+  namespace: nginx-gateway
+roleRef:
+  kind: Role
+  name: gateway-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+
+## This is enable the gtw running in the nginx-gateway namespace to read secrets in the vote namespace. This is required for TLS termination at the gtw level.

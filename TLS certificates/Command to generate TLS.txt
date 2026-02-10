@@ -1,5 +1,8 @@
+step1: generate ca Key:
 openssl genrsa -out ca.key 4096
 
+
+step2: generate CA certificate:
 openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
   -out ca.crt \
   -subj "/CN=MyOrg Root CA/O=MyOrg/C=US" \
@@ -18,6 +21,7 @@ EOF
 
 
 
+step3: create server certificate config file[server.cnf]: and have below entries in that file.
 
 server.cnf:
 
@@ -42,12 +46,14 @@ DNS.2 = result.polling.com
 DNS.3 = *.polling.com
 
 
+step4: generate server key:
 openssl genrsa -out server.key 2048
 
 
-
+step5:Generate server certificate request csr:
 openssl req -new -key server.key -out server.csr -config server.cnf
 
+Step6: sign the server csr with CA certificate and key this will generate the server certificate:
 
 openssl x509 -req -in server.csr \
   -CA ca.crt -CAkey ca.key -CAcreateserial \
@@ -55,6 +61,7 @@ openssl x509 -req -in server.csr \
   -sha256 -extensions req_ext -extfile server.cnf
 
 
+step7:verify the certificate with SAN:
 verify this you should see the below DNS
 openssl x509 -in server.crt -text -noout | grep -A5 "Subject Alternative Name"
 

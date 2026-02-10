@@ -1,0 +1,39 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: nginx-gateway
+  namespace: nginx-gateway
+spec:
+  gatewayClassName: nginx
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: "*.polling.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: polling-tls
+        group: ""
+    allowedRoutes:
+      namespaces:
+        from: All  
+  # - name: http
+  #   protocol: HTTP
+  #   port: 80
+  #   # hostname: "*.polling.com"
+  #   allowedRoutes:
+  #     namespaces:
+  #       from: All
+
+
+#Install gateway command:
+#helm install ngf oci://ghcr.io/nginx/charts/nginx-gateway-fabric -n nginx-gateway
+
+#while doin port forwarding , make sure you port forward the gateway gtw ( data plane) service that is "loadbalancer" type and not the "clusterip" type service that is created for the gateway control plane pod (pod/ngf-nginx-gateway-fabric-5487c58675-fznxs). The clusterip service is for internal communication between the gtw and the backend services. The loadbalancer service is the one that exposes the gtw to the outside world and is used for port forwarding.
+
+
+#Notes: Make sure the gateway and gatewayclass are in the same namespace. The HTTPRoute can be in a different namespace but it should reference the gateway with the correct namespace.
+#The TLS secret should be in the same namespace as the gateway or make sure the gateway has permissions to read the secret if it is in a different namespace. In this example, 
+#the gateway is in the nginx-gateway namespace and the TLS secret is in the vote namespace, so we need to create a role and rolebinding to allow the gateway to read the secret.
